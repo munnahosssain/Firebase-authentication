@@ -7,8 +7,10 @@ import "firebase/auth";
 import "firebase/firestore";
 import firebaseConfig from "./firebase.auth"
 
-firebase.initializeApp(firebaseConfig);
-
+// firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 function App() {
     const [user, setUser] = useState({
         isSignIn: false,
@@ -16,29 +18,32 @@ function App() {
         photo: '',
         email: ''
     })
-
     const provider = new firebase.auth.GoogleAuthProvider();
     const handleSignIn = () => {
         firebase.auth()
             .signInWithPopup(provider)
-            .then((result) => {
-                /** @type {firebase.auth.OAuthCredential} */
-                var credential = result.credential;
-
-                // This gives you a Google Access Token. You can use it to access the Google API.
-                var token = credential.accessToken;
-                // The signed-in user info.
-                var user = result.user;
-                // ...
-            }).catch((error) => {
-                // Handle Errors here.
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                // The email of the user's account used.
-                var email = error.email;
-                // The firebase.auth.AuthCredential type that was used.
-                var credential = error.credential;
-                // ...
+            .then(res => {
+                console.log(res);
+                const { displayName, photoURL, email } = res.user;
+                const signedInUser = {
+                    isSignIn: true,
+                    name: displayName,
+                    email: email,
+                    photo: photoURL
+                }
+                setUser(signedInUser);
+                console.log(displayName, email, photoURL);
+                // var credential = res.credential;
+                // var token = credential.accessToken;
+                // var user = res.user;
+            })
+            .catch((error) => {
+                console.log(error);
+                console.log(error.message);
+                // var errorCode = error.code;
+                // var errorMessage = error.message;
+                // var email = error.email;
+                // var credential = error.credential;
             });
     }
 

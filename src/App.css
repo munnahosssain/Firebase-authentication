@@ -38,5 +38,6 @@
 }
 
 .App img {
-  width: 20px
+  width: 250px;
+  border-radius: 50%;
 }
