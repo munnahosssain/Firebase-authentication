@@ -46,15 +46,30 @@ function App() {
                 // var credential = error.credential;
             });
     }
-
+    const handleSignOut = () => {
+        firebase.auth().signOut()
+            .then(res => {
+                const signOutUser = {
+                    isSignIn: false,
+                    name: '',
+                    photo: '',
+                    email: ''
+                }
+                setUser(signOutUser)
+            })
+            .catch((error) => {
+                // console.log(error);
+                // console.log(error.message);
+            });
+    }
 
     return (
         <div className="App">
-            {/* {
-                user.isSignIn ? <Button onClick={handleSignOut} variant="outline-light">Sign out</Button> :
+            {
+                user.isSignIn ? <Button onClick={handleSignOut} variant="primary">Sign out</Button> :
                     <Button onClick={handleSignIn} variant="primary">Sign in</Button>
-            } */}
-            <Button onClick={handleSignIn} variant="primary">Sign in</Button>
+            }
+            {/* <Button onClick={handleSignIn} variant="primary">Sign in</Button> */}
             {
                 user.isSignIn && <div>
                     <p>Welcome {user.name}</p>
