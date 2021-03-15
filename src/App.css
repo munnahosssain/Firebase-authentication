@@ -40,8 +40,9 @@
 .App img {
   width: 250px;
   border-radius: 50%;
+  text-align: center;
 }
 Form{
-  /* text-align: center; */
+  text-align: center;
   width:300px
 }
