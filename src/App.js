@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import firebase from "firebase/app";
 // Add the Firebase services that you want to use
 import "firebase/auth";
@@ -62,7 +62,21 @@ function App() {
                 // console.log(error.message);
             });
     }
+    const handleSubmit = () => {
 
+    }
+    const handleBlur = (event) => {
+        console.log(event.target.name, event.target.value);
+        if (event.target.name === 'email') {
+            const isEmailValid = /\S+@\S+\.\S+/.test(event.target.value);
+            console.log(isEmailValid);
+        }
+        if (event.target.name === 'password') {
+            const isPasswordValid = event.target.length > 5;
+            const passwordHashNumber = /\d{1}/.test(event.target.value);
+            console.log(isPasswordValid && passwordHashNumber);
+        }
+    }
     return (
         <div className="App">
             {
@@ -77,6 +91,15 @@ function App() {
                     <img src={user.photo} alt="" />
                 </div>
             }
+            <Form onSubmit={handleSubmit}>
+                <Form.Group controlId="formGroupEmail">
+                    <Form.Control onBlur={handleBlur} name="email" type="email" placeholder="Enter email" required />
+                </Form.Group>
+                <Form.Group controlId="formGroupPassword">
+                    <Form.Control onBlur={handleBlur} name="password" placeholder="Enter password" type="password" placeholder="Password" required />
+                </Form.Group>
+                <Button type="submit" value="Submit">Submit</Button>
+            </Form>
         </div>
     );
 }
