@@ -47,7 +47,8 @@ function App() {
                     isSignIn: false,
                     name: '',
                     photo: '',
-                    email: ''
+                    email: '',
+                    error: '',
                 }
                 setUser(signOutUser)
             })
@@ -58,37 +59,41 @@ function App() {
     }
     const handleBlur = (event) => {
         // console.log(event.target.name, event.target.value);
-        let isFormValid = true;
+        let isFieldValid = true;
         if (event.target.name === 'email') {
-            isFormValid = /\S+@\S+\.\S+/.test(event.target.value);
-            // console.log(isFormValid);
+            isFieldValid = /\S+@\S+\.\S+/.test(event.target.value);
+            // console.log(isFieldValid);
         }
         if (event.target.name === 'password') {
             const isPasswordValid = event.target.value.length > 6;
             // console.log(isPasswordValid, 'moreThanSix');
             const passwordHashNumber = /\d{1}/.test(event.target.value);
             // console.log(passwordHashNumber, 'is trueOrFalse');
-            isFormValid = isPasswordValid && passwordHashNumber;
-            // console.log(isFormValid, "valid");
+            isFieldValid = isPasswordValid && passwordHashNumber;
+            // console.log(isFieldValid, "valid");
         }
-        if (isFormValid) {
+        if (isFieldValid) {
             const newUserInfo = { ...user };
             newUserInfo[event.target.name] = event.target.value;
             setUser(newUserInfo);
         }
     }
     const handleSubmit = (event) => {
+        // console.log(user.email, user.password);
         if (user.email && user.password) {
-            console.log(user.email, user.password);
             firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-                .then(res => {
-                    console.log(res);
-                })
+                // .then(res => {
+                //     console.log(res);
+                // })
                 .catch(error => {
                     var errorCode = error.code;
                     var errorMessage = error.message;
                     console.log(errorCode, errorMessage);
                 })
+                // .catch(error => {
+                //     const newUserInfo = { ...user };
+                //     newUserInfo.error = error.message;
+                // })
         }
         event.preventDefault();
     }
@@ -106,9 +111,10 @@ function App() {
                 </div>
             }
             <h1>Our Own Authentication</h1>
-            <p>Name: {user.name}</p>
+            {/* <p>Name: {user.name}</p>
             <p>Email: {user.email}</p>
-            <p>Password: {user.password}</p>
+            <p>Password: {user.password}</p> */}
+
             {/* <Form onSubmit={handleSubmit}>
                 <input onBlur={handleBlur} name="name" type="name" placeholder="Your name" />
                 <input onBlur={handleBlur} required type="email" name="email" placeholder="Enter email" />
@@ -117,7 +123,7 @@ function App() {
             </Form> */}
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formGroupEmail">
-                    <Form.Control onBlur={handleBlur} name="name" type="name" placeholder="Your name" required />
+                    <Form.Control onBlur={handleBlur} name="name" type="name" placeholder="Your name" />
                 </Form.Group>
 
                 <Form.Group controlId="formGroupEmail">
