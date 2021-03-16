@@ -49,6 +49,7 @@ function App() {
                     photo: '',
                     email: '',
                     error: '',
+                    success: '',
                 }
                 setUser(signOutUser)
             })
@@ -82,18 +83,19 @@ function App() {
         // console.log(user.email, user.password);
         if (user.email && user.password) {
             firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-                // .then(res => {
-                //     console.log(res);
-                // })
-                .catch(error => {
-                    var errorCode = error.code;
-                    var errorMessage = error.message;
-                    console.log(errorCode, errorMessage);
+                .then(res => {
+                    const newUserInfo = { ...user };
+                    newUserInfo.error = '';
+                    newUserInfo.success = true;
+                    setUser(newUserInfo);
+                    // console.log(res);
                 })
-                // .catch(error => {
-                //     const newUserInfo = { ...user };
-                //     newUserInfo.error = error.message;
-                // })
+                .catch(error => {
+                    const newUserInfo = { ...user };
+                    newUserInfo.error = error.message;
+                    newUserInfo.success = false;
+                    setUser(newUserInfo);
+                })
         }
         event.preventDefault();
     }
@@ -135,6 +137,10 @@ function App() {
                 </Form.Group>
                 <Button type="submit" value="Submit">Submit</Button>
             </Form>
+            <p style={{ color: 'red' }}>{user.error}</p>
+            {
+                user.success && <p style={{ color: 'green' }}>User created successfully</p>
+            }
         </div>
     );
 }
