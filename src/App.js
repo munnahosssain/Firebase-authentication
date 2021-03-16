@@ -24,7 +24,7 @@ function App() {
         firebase.auth()
             .signInWithPopup(provider)
             .then(res => {
-                console.log(res);
+                // console.log(res);
                 const { displayName, photoURL, email } = res.user;
                 const signedInUser = {
                     isSignIn: true,
@@ -33,7 +33,7 @@ function App() {
                     photo: photoURL
                 }
                 setUser(signedInUser);
-                console.log(displayName, email, photoURL);
+                // console.log(displayName, email, photoURL);
             })
             .catch((error) => {
                 console.log(error);
@@ -56,22 +56,20 @@ function App() {
                 console.log(error.message);
             });
     }
-    const handleSubmit = (event) => {
-        console.log(user.email, user.password);
-        if (user.email && user.password) {
-        }
-        event.preventDefault();
-    }
     const handleBlur = (event) => {
         // console.log(event.target.name, event.target.value);
         let isFormValid = true;
         if (event.target.name === 'email') {
             isFormValid = /\S+@\S+\.\S+/.test(event.target.value);
+            // console.log(isFormValid);
         }
         if (event.target.name === 'password') {
-            const isPasswordValid = event.target.length > 5;
+            const isPasswordValid = event.target.value.length > 6;
+            // console.log(isPasswordValid, 'moreThanSix');
             const passwordHashNumber = /\d{1}/.test(event.target.value);
+            // console.log(passwordHashNumber, 'is trueOrFalse');
             isFormValid = isPasswordValid && passwordHashNumber;
+            // console.log(isFormValid, "valid");
         }
         if (isFormValid) {
             const newUserInfo = { ...user };
@@ -79,13 +77,27 @@ function App() {
             setUser(newUserInfo);
         }
     }
+    const handleSubmit = (event) => {
+        if (user.email && user.password) {
+            console.log(user.email, user.password);
+            firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
+                .then(res => {
+                    console.log(res);
+                })
+                .catch(error => {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    console.log(errorCode, errorMessage);
+                })
+        }
+        event.preventDefault();
+    }
     return (
         <div className="App-header">
             {
                 user.isSignIn ? <Button onClick={handleSignOut} variant="primary">Sign out</Button> :
                     <Button onClick={handleSignIn} variant="primary">Sign in</Button>
             }
-            {/* <Button onClick={handleSignIn} variant="primary">Sign in</Button> */}
             {
                 user.isSignIn && <div className="App">
                     <p>Welcome {user.name}</p>
@@ -93,7 +105,16 @@ function App() {
                     <img src={user.photo} alt="" />
                 </div>
             }
-            <h1>Our own Authentication</h1>
+            <h1>Our Own Authentication</h1>
+            <p>Name: {user.name}</p>
+            <p>Email: {user.email}</p>
+            <p>Password: {user.password}</p>
+            {/* <Form onSubmit={handleSubmit}>
+                <input onBlur={handleBlur} name="name" type="name" placeholder="Your name" />
+                <input onBlur={handleBlur} required type="email" name="email" placeholder="Enter email" />
+                <input onBlur={handleBlur} required name="password" placeholder="Password" /><br />
+                <input type="submit" value="Submit" />
+            </Form> */}
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formGroupEmail">
                     <Form.Control onBlur={handleBlur} name="name" type="name" placeholder="Your name" required />
@@ -113,4 +134,3 @@ function App() {
 }
 
 export default App;
-
