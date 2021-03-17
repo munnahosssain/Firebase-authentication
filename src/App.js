@@ -12,6 +12,7 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 function App() {
+    const [newUser, setNewUser] = useState(false);
     const [user, setUser] = useState({
         isSignIn: false,
         name: '',
@@ -19,10 +20,11 @@ function App() {
         email: '',
         password: '',
     })
-    const provider = new firebase.auth.GoogleAuthProvider();
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
+    const fbProvider = new firebase.auth.FacebookAuthProvider();
     const handleSignIn = () => {
         firebase.auth()
-            .signInWithPopup(provider)
+            .signInWithPopup(googleProvider)
             .then(res => {
                 // console.log(res);
                 const { displayName, photoURL, email } = res.user;
@@ -40,6 +42,25 @@ function App() {
                 console.log(error.message);
             });
     }
+
+    const handleFbSignIn = () => {
+        firebase.auth()
+            .signInWithPopup(fbProvider)
+            .then(res => {
+                console.log('hello');
+                var credential = res.credential;
+                var user = res.user;
+                var accessToken = credential.accessToken;
+                console.log(user, 'fb user using in');
+            })
+            .catch((error) => {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                var email = error.email;
+                var credential = error.credential;
+            });
+    }
+
     const handleSignOut = () => {
         firebase.auth().signOut()
             .then(res => {
@@ -81,7 +102,7 @@ function App() {
     }
     const handleSubmit = (event) => {
         // console.log(user.email, user.password);
-        if (user.email && user.password) {
+        if (newUser && user.email && user.password) {
             firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
                 .then(res => {
                     const newUserInfo = { ...user };
@@ -95,9 +116,37 @@ function App() {
                     newUserInfo.error = error.message;
                     newUserInfo.success = false;
                     setUser(newUserInfo);
+                    updateUserName(user.name);
                 })
         }
+        if (!newUser && user.email && user.password) {
+            firebase.auth().signInWithEmailAndPassword(user.email, user.password)
+                .then(res => {
+                    const newUserInfo = { ...user };
+                    newUserInfo.error = '';
+                    newUserInfo.success = true;
+                    setUser(newUserInfo);
+                    console.log('sign in user information', res.user);
+                })
+                .catch((error) => {
+                    const newUserInfo = { ...user };
+                    newUserInfo.error = error.message;
+                    newUserInfo.success = false;
+                    setUser(newUserInfo);
+                });
+        }
         event.preventDefault();
+    }
+    const updateUserName = name => {
+        var user = firebase.auth().currentUser;
+
+        user.updateProfile({
+            displayName: name
+        }).then(function () {
+            console.log('user name updated successfully');
+        }).catch(function (error) {
+            console.log(error);
+        });
     }
     return (
         <div className="App-header">
@@ -105,6 +154,7 @@ function App() {
                 user.isSignIn ? <Button onClick={handleSignOut} variant="primary">Sign out</Button> :
                     <Button onClick={handleSignIn} variant="primary">Sign in</Button>
             }
+            <br /> <Button onClick={handleFbSignIn} variant="primary">Sign in Facebook</Button>
             {
                 user.isSignIn && <div className="App">
                     <p>Welcome {user.name}</p>
@@ -123,9 +173,17 @@ function App() {
                 <input onBlur={handleBlur} required name="password" placeholder="Password" /><br />
                 <input type="submit" value="Submit" />
             </Form> */}
+
+            <Form.Group id="formGridCheckbox">
+                <input type="checkbox" onChange={() => setNewUser(!newUser)} name="newUser" id="" />
+                <label htmlFor="newUser"> sign up for new user</label>
+            </Form.Group>
+
             <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formGroupEmail">
-                    <Form.Control onBlur={handleBlur} name="name" type="name" placeholder="Your name" />
+                    {
+                        newUser && <Form.Control onBlur={handleBlur} name="name" type="name" placeholder="Your name" />
+                    }
                 </Form.Group>
 
                 <Form.Group controlId="formGroupEmail">
@@ -133,13 +191,13 @@ function App() {
                 </Form.Group>
 
                 <Form.Group controlId="formGroupPassword">
-                    <Form.Control onBlur={handleBlur} name="password" type="password" placeholder="Password" required />
+                    <Form.Control onBlur={handleBlur} name="password" placeholder="Password" required />
                 </Form.Group>
-                <Button type="submit" value="Submit">Submit</Button>
+                <Button type="submit" value="Submit">{newUser ? 'Sign up' : 'Sing In'}</Button>
             </Form>
             <p style={{ color: 'red' }}>{user.error}</p>
             {
-                user.success && <p style={{ color: 'green' }}>User created successfully</p>
+                user.success && <p style={{ color: 'green' }}>User {newUser ? 'created' : 'Logged in'} successfully</p>
             }
         </div>
     );
